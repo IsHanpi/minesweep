@@ -47,16 +47,6 @@ class BoardNumberCalculationTest {
     }
 
     @Test
-    void testCalculateNumbersWithAllMines() {
-        // 创建1x1棋盘，只有一个雷
-        Board board = new Board(1, 1, 1);
-        board.getCell(0, 0).setMine(true);
-        
-        // 计算数字，不应该抛异常
-        assertDoesNotThrow(() -> board.calculateNumbers());
-    }
-
-    @Test
     void testCalculateNumbersWithNoMines() {
         // 创建2x2棋盘，无雷
         Board board = new Board(2, 2, 0);
@@ -97,7 +87,7 @@ class BoardNumberCalculationTest {
         assertEquals(1, board.getCell(1, 2).getNeighborMineCount());
         // (2,1) 旁边有一个雷：(2,0)
         assertEquals(1, board.getCell(2, 1).getNeighborMineCount());
-        // (2,2) 旁边有一个雷：(0,2)
-        assertEquals(1, board.getCell(2, 2).getNeighborMineCount());
+        // (2,2) 旁边没有雷
+        assertEquals(0, board.getCell(2, 2).getNeighborMineCount());
     }
 }

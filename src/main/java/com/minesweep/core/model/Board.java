@@ -148,12 +148,39 @@ public class Board {
     }
 
     /**
+     * 增加已揭示的单元格数量。
+     * <p>
+     * 当单元格被揭示时调用此方法。
+     */
+    public void incrementRevealedCount() {
+        revealedCount++;
+    }
+
+    /**
      * 获取已标记的单元格数量。
      *
      * @return 已标记的单元格数量
      */
     public int getFlaggedCount() {
         return flaggedCount;
+    }
+
+    /**
+     * 增加已标记的单元格数量。
+     * <p>
+     * 当单元格被标记时调用此方法。
+     */
+    public void incrementFlaggedCount() {
+        flaggedCount++;
+    }
+
+    /**
+     * 减少已标记的单元格数量。
+     * <p>
+     * 当单元格的标记被移除时调用此方法。
+     */
+    public void decrementFlaggedCount() {
+        flaggedCount--;
     }
 
     /**
