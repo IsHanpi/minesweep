@@ -15,6 +15,7 @@ public class GameEngine {
     private final MapGenerator generator;
     private boolean firstClickPending;
     private long startTime;
+    private long endTime;
     private int flaggedMinesCount;
 
     /**
@@ -36,6 +37,7 @@ public class GameEngine {
         this.state = GameState.READY;
         this.firstClickPending = true;
         this.startTime = -1;
+        this.endTime = -1;
         this.flaggedMinesCount = 0;
     }
 
@@ -63,12 +65,16 @@ public class GameEngine {
      * 获取游戏已经进行的时间（毫秒）。
      * <p>
      * 如果游戏状态为 READY，则返回 0。
+     * 如果游戏状态为 WON 或 LOST，则返回游戏结束时的时间差。
      *
      * @return 游戏已经进行的时间（毫秒）
      */
     public long getElapsedTime() {
         if (state == GameState.READY) {
             return 0;
+        }
+        if (state == GameState.WON || state == GameState.LOST) {
+            return endTime - startTime;
         }
         return System.currentTimeMillis() - startTime;
     }
@@ -188,7 +194,7 @@ public class GameEngine {
             board.incrementRevealedCount();
             state = GameState.LOST;
             // 记录结束时间
-            startTime = System.currentTimeMillis() - startTime;
+            endTime = System.currentTimeMillis();
             return true;
         }
         
@@ -205,7 +211,7 @@ public class GameEngine {
         if (checkWin()) {
             state = GameState.WON;
             // 记录结束时间
-            startTime = System.currentTimeMillis() - startTime;
+            endTime = System.currentTimeMillis();
             return true;
         }
         
