@@ -348,4 +348,92 @@ public class GameEngine {
             return GameResult.defeat(startTime, remainingMines, board.getRevealedCount());
         }
     }
+
+    /**
+     * Chord 操作，当目标格已揭示、非雷、数字 > 0 且周围标记数等于数字时，批量揭示周围未标记未揭示的格子。
+     *
+     * @param row 行坐标
+     * @param col 列坐标
+     * @return 是否触发了揭示操作
+     * @throws IllegalStateException 如果游戏状态不是 PLAYING，或者目标格未揭示、是雷、数字为 0
+     * @throws IndexOutOfBoundsException 如果坐标超出棋盘范围
+     */
+    public boolean chord(int row, int col) {
+        // 如果是首次点击，先开始游戏
+        if (firstClickPending) {
+            startGame(row, col);
+        }
+        
+        // 检查游戏状态
+        if (state != GameState.PLAYING) {
+            throw new IllegalStateException("Game is not in PLAYING state");
+        }
+        
+        // 边界检查
+        Cell targetCell = board.getCell(row, col);
+        
+        // 验证目标格状态：已揭示、非雷
+        if (!targetCell.isRevealed()) {
+            throw new IllegalStateException("Target cell must be revealed");
+        }
+        if (targetCell.isMine()) {
+            throw new IllegalStateException("Target cell cannot be a mine");
+        }
+        
+        // 计算周围标记数
+        int flagCount = 0;
+        // 遍历所有 8 个方向的邻居
+        int[] dr = {-1, -1, -1, 0, 0, 1, 1, 1};
+        int[] dc = {-1, 0, 1, -1, 1, -1, 0, 1};
+        
+        // 第一次遍历：计算周围标记数
+        for (int i = 0; i < 8; i++) {
+            int neighborRow = row + dr[i];
+            int neighborCol = col + dc[i];
+            
+            // 检查邻居位置是否有效
+            if (neighborRow >= 0 && neighborRow < board.getRows() && 
+                neighborCol >= 0 && neighborCol < board.getCols()) {
+                
+                Cell neighborCell = board.getCell(neighborRow, neighborCol);
+                if (neighborCell.isFlagged()) {
+                    flagCount++;
+                }
+            }
+        }
+        
+        // 如果周围标记数不等于目标格的数字，则不执行任何操作
+        if (flagCount != targetCell.getNeighborMineCount()) {
+            return false;
+        }
+        
+        // 第二次遍历：批量揭示未标记未揭示的邻居
+        boolean hasRevealed = false;
+        for (int i = 0; i < 8; i++) {
+            int neighborRow = row + dr[i];
+            int neighborCol = col + dc[i];
+            
+            // 检查邻居位置是否有效
+            if (neighborRow >= 0 && neighborRow < board.getRows() && 
+                neighborCol >= 0 && neighborCol < board.getCols()) {
+                
+                Cell neighborCell = board.getCell(neighborRow, neighborCol);
+                
+                // 如果邻居未揭示且未标记，则揭示
+                if (!neighborCell.isRevealed() && !neighborCell.isFlagged()) {
+                    // 调用 reveal 方法进行揭示
+                    if (reveal(neighborRow, neighborCol)) {
+                        hasRevealed = true;
+                    }
+                    
+                    // 如果揭示后游戏状态变为 LOST（踩雷），则立即返回
+                    if (state == GameState.LOST) {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        return hasRevealed;
+    }
 }
