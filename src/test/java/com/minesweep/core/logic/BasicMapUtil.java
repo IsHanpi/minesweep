@@ -54,7 +54,7 @@ public class BasicMapUtil {
         MapGenerator generator = new DummyMapGenerator();
         GameEngine engine = new GameEngine(board, generator, questionMarkEnabled);
         
-        // 首次打开 8,8，确保游戏正常开局
+        // 首次打开 8,8，确保游戏正常开局，此时将打开 8,8 及其相邻的 7,7(5) 7,8(2) 8,7(2)
         engine.reveal(8, 8);
         
         return engine;
