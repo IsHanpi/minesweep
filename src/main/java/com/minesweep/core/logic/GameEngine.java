@@ -4,7 +4,6 @@ import com.minesweep.core.model.Board;
 import com.minesweep.core.model.Cell;
 import com.minesweep.core.model.Position;
 import java.util.ArrayDeque;
-import java.util.List;
 
 /**
  * GameEngine 类是扫雷游戏的核心引擎，管理游戏状态和逻辑。
