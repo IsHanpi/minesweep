@@ -86,19 +86,19 @@ class GameEndConditionTest {
         assertEquals(0, board.getFlaggedCount(), "Flagged count should be 0 initially");
         
         // 标记 (2,2)（雷的位置，肯定没有被揭示）
-        engine.toggleFlag(2, 2);
+        engine.cycleMark(2, 2);
         assertEquals(1, board.getFlaggedCount(), "Flagged count should be 1 after flagging (2,2)");
         
         // 再次点击取消标记
-        engine.toggleFlag(2, 2);
+        engine.cycleMark(2, 2);
         assertEquals(0, board.getFlaggedCount(), "Flagged count should be 0 after unflagging (2,2)");
         
         // 标记 (2,3)（雷的位置，肯定没有被揭示）
-        engine.toggleFlag(2, 3);
+        engine.cycleMark(2, 3);
         assertEquals(1, board.getFlaggedCount(), "Flagged count should be 1 after flagging (2,3)");
         
         // 标记 (3,2)（雷的位置，肯定没有被揭示）
-        engine.toggleFlag(3, 2);
+        engine.cycleMark(3, 2);
         assertEquals(2, board.getFlaggedCount(), "Flagged count should be 2 after flagging (3,2)");
     }
 
@@ -109,11 +109,11 @@ class GameEndConditionTest {
         MapGenerator generator = new FixedMineMapGenerator();
         GameEngine engine = new GameEngine(board, generator);
         
-        // 测试 READY 状态 toggleFlag 抛异常
-        IllegalStateException readyToggleFlagException = assertThrows(IllegalStateException.class, () -> {
-            engine.toggleFlag(0, 0);
+        // 测试 READY 状态 cycleMark 抛异常
+        IllegalStateException readyCycleMarkException = assertThrows(IllegalStateException.class, () -> {
+            engine.cycleMark(0, 0);
         });
-        assertEquals("Game is not in PLAYING state", readyToggleFlagException.getMessage());
+        assertEquals("Game is not in PLAYING state", readyCycleMarkException.getMessage());
         
         // 首次点击 (0,0)，进入 PLAYING 状态
         engine.reveal(0, 0);
@@ -143,8 +143,8 @@ class GameEndConditionTest {
         newEngine.reveal(0, 0);
         
         IllegalStateException flagRevealedCellException = assertThrows(IllegalStateException.class, () -> {
-            newEngine.toggleFlag(0, 0); // (0,0) 已被揭示
+            newEngine.cycleMark(0, 0); // (0,0) 已被揭示
         });
-        assertEquals("Cannot flag revealed cell", flagRevealedCellException.getMessage());
+        assertEquals("Cannot cycle mark on revealed cell", flagRevealedCellException.getMessage());
     }
 }

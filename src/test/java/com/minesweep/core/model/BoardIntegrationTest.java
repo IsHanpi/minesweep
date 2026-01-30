@@ -108,8 +108,10 @@ class BoardIntegrationTest {
                     cell00.reveal();
                     assertTrue(grid[0][0].isRevealed(), "Modifying getCell(0,0) should affect grid[0][0]");
                     
-                    cell01.toggleFlag();
+                    cell01.cycleMark(false);
                     assertTrue(grid[0][1].isFlagged(), "Modifying getCell(0,1) should affect grid[0][1]");
+                    cell01.cycleMark(false); // 恢复到未标记状态
+                    assertFalse(grid[0][1].isFlagged(), "Modifying getCell(0,1) should affect grid[0][1]");
                     
                 } catch (Exception e) {
                     fail("Reflection failed: " + e.getMessage());

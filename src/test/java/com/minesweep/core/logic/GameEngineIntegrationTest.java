@@ -126,7 +126,7 @@ class GameEngineIntegrationTest {
         assertEquals(0, board.getFlaggedCount(), "Initial flagged count should be 0");
         
         // 标记 (2,2)（雷的位置）
-        engine.toggleFlag(2, 2);
+        engine.cycleMark(2, 2);
         assertEquals(1, board.getFlaggedCount(), "Flagged count should be 1 after flagging (2,2)");
         
         // 尝试揭示已标记的格子（应该返回 false，不揭示）
@@ -135,14 +135,14 @@ class GameEngineIntegrationTest {
         assertEquals(1, board.getFlaggedCount(), "Flagged count should remain 1 after trying to reveal flagged cell");
         
         // 取消标记
-        engine.toggleFlag(2, 2);
+        engine.cycleMark(2, 2);
         assertEquals(0, board.getFlaggedCount(), "Flagged count should be 0 after unflagging (2,2)");
         
         // 尝试标记已揭示的格子（应该抛异常）
         IllegalStateException flaggedRevealedCellException = assertThrows(IllegalStateException.class, () -> {
-            engine.toggleFlag(0, 0); // (0,0) 已被揭示
+            engine.cycleMark(0, 0); // (0,0) 已被揭示
         });
-        assertEquals("Cannot flag revealed cell", flaggedRevealedCellException.getMessage());
+        assertEquals("Cannot cycle mark on revealed cell", flaggedRevealedCellException.getMessage());
     }
 
     @Test
@@ -176,10 +176,10 @@ class GameEngineIntegrationTest {
     @Test
     void testIllegalOperationSequence() {
         // 测试 1: 在 READY 状态尝试标记
-        IllegalStateException readyToggleFlagException = assertThrows(IllegalStateException.class, () -> {
-            engine.toggleFlag(0, 0);
+        IllegalStateException readyCycleMarkException = assertThrows(IllegalStateException.class, () -> {
+            engine.cycleMark(0, 0);
         });
-        assertEquals("Game is not in PLAYING state", readyToggleFlagException.getMessage());
+        assertEquals("Game is not in PLAYING state", readyCycleMarkException.getMessage());
         
         // 测试 2: 在 READY 状态尝试获取游戏结果
         IllegalStateException readyGetGameResultException = assertThrows(IllegalStateException.class, () -> {
@@ -206,9 +206,9 @@ class GameEngineIntegrationTest {
         assertEquals("Game is not in PLAYING state", lostRevealException.getMessage());
         
         // 测试 5: 在 LOST 状态尝试标记
-        IllegalStateException lostToggleFlagException = assertThrows(IllegalStateException.class, () -> {
-            engine.toggleFlag(3, 3);
+        IllegalStateException lostCycleMarkException = assertThrows(IllegalStateException.class, () -> {
+            engine.cycleMark(3, 3);
         });
-        assertEquals("Game is not in PLAYING state", lostToggleFlagException.getMessage());
+        assertEquals("Game is not in PLAYING state", lostCycleMarkException.getMessage());
     }
 }

@@ -31,7 +31,7 @@ public class Main {
             System.out.println("========================================");
             System.out.println("游戏规则：");
             System.out.println("1. 输入 'r 行 列' 揭示格子");
-            System.out.println("2. 输入 'f 行 列' 标记/取消标记格子");
+            System.out.println("2. 输入 'f 行 列' 标记/取消标记/问号标记格子");
             System.out.println("3. 输入 'c 行 列' 执行 Chord 操作（快速揭示）");
             System.out.println("4. 输入 'q' 退出游戏");
             System.out.println("========================================");
@@ -87,8 +87,8 @@ public class Main {
                             }
                             break;
                         case "f":
-                            // 标记/取消标记格子
-                            engine.toggleFlag(row, col);
+                            // 标记/取消标记/问号标记格子
+                            engine.cycleMark(row, col);
                             break;
                         case "c":
                             // 执行 Chord 操作
@@ -202,19 +202,19 @@ public class Main {
             // 打印每行的格子
             for (int c = 0; c < cols; c++) {
                 Cell cell = board.getCell(r, c);
-                if (cell.isFlagged()) {
-                    System.out.print("F ");
-                } else if (!cell.isRevealed()) {
-                    System.out.print(". ");
-                } else if (cell.isMine()) {
-                    System.out.print("* ");
-                } else {
-                    int neighborCount = cell.getNeighborMineCount();
-                    if (neighborCount == 0) {
-                        System.out.print("  ");
+                if (cell.isRevealed()) { // 已揭示优先
+                    if (cell.isMine()) {
+                        System.out.print("* ");
                     } else {
-                        System.out.print(neighborCount + " ");
+                        int neighborCount = cell.getNeighborMineCount();
+                        System.out.print(neighborCount == 0 ? "  " : neighborCount + " ");
                     }
+                } else if (cell.isFlagged()) { // 未揭示才显示标记
+                    System.out.print("F ");
+                } else if (cell.isQuestioned()) {
+                    System.out.print("? ");
+                } else {
+                    System.out.print(". ");
                 }
             }
             System.out.println();

@@ -47,26 +47,26 @@ class CellTest {
     }
 
     @Test
-    void testToggleFlagOnUnrevealedCell() {
+    void testCycleMarkOnUnrevealedCell() {
         Cell cell = new Cell();
         assertFalse(cell.isFlagged());
         
-        cell.toggleFlag();
+        cell.cycleMark(false);
         assertTrue(cell.isFlagged());
         
-        cell.toggleFlag();
+        cell.cycleMark(false);
         assertFalse(cell.isFlagged());
     }
 
     @Test
-    void testToggleFlagOnRevealedCellThrowsException() {
+    void testCycleMarkOnRevealedCellThrowsException() {
         Cell cell = new Cell();
         cell.reveal();
         
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            cell.toggleFlag();
+            cell.cycleMark(false);
         });
-        assertEquals("Cannot toggle flag on revealed cell", exception.getMessage());
+        assertEquals("Cannot cycle mark on revealed cell", exception.getMessage());
     }
 
     @Test
@@ -77,20 +77,30 @@ class CellTest {
         assertFalse(cell.isRevealed());
         assertFalse(cell.isFlagged());
         
-        // Toggle flag
-        cell.toggleFlag();
+        // Cycle mark
+        cell.cycleMark(false);
         assertFalse(cell.isRevealed());
         assertTrue(cell.isFlagged());
         
-        // Reveal should work even if flagged
+        // Reveal should not work if flagged (Flag absolute protection)
         boolean revealResult = cell.reveal();
-        assertTrue(revealResult);
-        assertTrue(cell.isRevealed());
+        assertFalse(revealResult);
+        assertFalse(cell.isRevealed());
         assertTrue(cell.isFlagged()); // Flag status remains
         
-        // Cannot toggle flag after reveal
+        // Can still cycle mark on flagged cell (not revealed yet)
+        cell.cycleMark(false);
+        assertFalse(cell.isRevealed());
+        assertFalse(cell.isFlagged()); // Flag should be toggled off
+        
+        // Now reveal the cell
+        revealResult = cell.reveal();
+        assertTrue(revealResult);
+        assertTrue(cell.isRevealed());
+        
+        // Cannot cycle mark after reveal
         assertThrows(IllegalStateException.class, () -> {
-            cell.toggleFlag();
+            cell.cycleMark(false);
         });
     }
 

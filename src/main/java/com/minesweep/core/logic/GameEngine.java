@@ -16,6 +16,7 @@ public class GameEngine {
     private long startTime;
     private long endTime;
     private int flaggedMinesCount;
+    private boolean questionMarkEnabled;
 
     /**
      * 创建一个新的 GameEngine 实例。
@@ -25,6 +26,18 @@ public class GameEngine {
      * @throws NullPointerException 如果 board 或 generator 为 null
      */
     public GameEngine(Board board, MapGenerator generator) {
+        this(board, generator, true);
+    }
+
+    /**
+     * 创建一个新的 GameEngine 实例。
+     *
+     * @param board 游戏棋盘
+     * @param generator 地图生成器
+     * @param questionMarkEnabled 是否启用问号标记
+     * @throws NullPointerException 如果 board 或 generator 为 null
+     */
+    public GameEngine(Board board, MapGenerator generator, boolean questionMarkEnabled) {
         if (board == null) {
             throw new NullPointerException("Board cannot be null");
         }
@@ -33,12 +46,15 @@ public class GameEngine {
         }
         this.board = board;
         this.generator = generator;
+        this.questionMarkEnabled = questionMarkEnabled;
         this.state = GameState.READY;
         this.firstClickPending = true;
         this.startTime = -1;
         this.endTime = -1;
         this.flaggedMinesCount = 0;
     }
+
+
 
     /**
      * 获取游戏棋盘。
@@ -294,14 +310,14 @@ public class GameEngine {
     }
 
     /**
-     * 切换格子的标记状态。
+     * 循环切换格子的标记状态。
      *
      * @param row 行坐标
      * @param col 列坐标
      * @throws IllegalStateException 如果游戏状态不是 PLAYING，或者格子已经揭示
      * @throws IndexOutOfBoundsException 如果坐标超出棋盘范围
      */
-    public void toggleFlag(int row, int col) {
+    public void cycleMark(int row, int col) {
         // 检查游戏状态
         if (state != GameState.PLAYING) {
             throw new IllegalStateException("Game is not in PLAYING state");
@@ -312,12 +328,14 @@ public class GameEngine {
         
         // 禁止标记已揭示格子
         if (cell.isRevealed()) {
-            throw new IllegalStateException("Cannot flag revealed cell");
+            throw new IllegalStateException("Cannot cycle mark on revealed cell");
         }
         
-        // 切换标记状态
+        // 记录之前的标记状态
         boolean wasFlagged = cell.isFlagged();
-        cell.toggleFlag();
+        
+        // 循环切换标记状态
+        cell.cycleMark(questionMarkEnabled);
         
         // 根据结果更新标记计数
         if (!wasFlagged && cell.isFlagged()) {

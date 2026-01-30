@@ -124,9 +124,9 @@ class FloodFillTest {
         // 手动标记中心格子
         Cell centerCell = board.getCell(1, 1);
         try {
-            java.lang.reflect.Method toggleFlagMethod = Cell.class.getDeclaredMethod("toggleFlag");
-            toggleFlagMethod.setAccessible(true);
-            toggleFlagMethod.invoke(centerCell);
+            java.lang.reflect.Method cycleMarkMethod = Cell.class.getDeclaredMethod("cycleMark", boolean.class);
+            cycleMarkMethod.setAccessible(true);
+            cycleMarkMethod.invoke(centerCell, false); // 传递 false 表示使用两态切换
             // 更新标记计数
             java.lang.reflect.Method incrementFlaggedCountMethod = Board.class.getDeclaredMethod("incrementFlaggedCount");
             incrementFlaggedCountMethod.setAccessible(true);
@@ -187,9 +187,9 @@ class FloodFillTest {
         // 手动标记中心格子
         Cell centerCell = board.getCell(1, 1);
         try {
-            java.lang.reflect.Method toggleFlagMethod = Cell.class.getDeclaredMethod("toggleFlag");
-            toggleFlagMethod.setAccessible(true);
-            toggleFlagMethod.invoke(centerCell);
+            java.lang.reflect.Method cycleMarkMethod = Cell.class.getDeclaredMethod("cycleMark", boolean.class);
+            cycleMarkMethod.setAccessible(true);
+            cycleMarkMethod.invoke(centerCell, false); // 传递 false 表示使用两态切换
             // 更新标记计数
             java.lang.reflect.Method incrementFlaggedCountMethod = Board.class.getDeclaredMethod("incrementFlaggedCount");
             incrementFlaggedCountMethod.setAccessible(true);

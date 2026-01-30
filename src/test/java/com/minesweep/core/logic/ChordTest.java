@@ -8,55 +8,13 @@ import com.minesweep.core.model.Cell;
 
 class ChordTest {
 
-    /**
-     * DummyMapGenerator 生成固定雷位置的9×9地图，雷固定在指定位置。
-     */
-    private static class DummyMapGenerator implements MapGenerator {
-        @Override
-        public void generate(Board board, int firstRow, int firstCol) {
-            try {
-                java.lang.reflect.Method setMineMethod = Cell.class.getDeclaredMethod("setMine", boolean.class);
-                setMineMethod.setAccessible(true);
-                
-                // 固定雷位置：0,0 2,2 2,6 3,4 4,3 4,4 5,4 6,2 6,6 6,7 6,8 7,6 8,6
-                int[][] minePositions = {
-                    {0, 0},
-                    {2, 2},
-                    {2, 6},
-                    {3, 4},
-                    {4, 3},
-                    {4, 4},
-                    {5, 4},
-                    {6, 2},
-                    {6, 6},
-                    {6, 7},
-                    {6, 8},
-                    {7, 6},
-                    {8, 6}
-                };
-                
-                // 放置雷
-                for (int[] pos : minePositions) {
-                    setMineMethod.invoke(board.getCell(pos[0], pos[1]), true);
-                }
-            } catch (Exception e) {
-                throw new RuntimeException("Error setting mine", e);
-            }
-        }
-    }
-
     private Board board;
     private GameEngine engine;
 
     @BeforeEach
     void setUp() {
-        // 创建 9×9 棋盘，13 个雷
-        board = new Board(9, 9, 13);
-        MapGenerator generator = new DummyMapGenerator();
-        engine = new GameEngine(board, generator);
-        
-        // 首次打开 8,8
-        engine.reveal(8, 8);
+        engine = BasicMapUtil.createAndSetupEngine();
+        board = engine.getBoard();
     }
 
     @Test
@@ -65,10 +23,10 @@ class ChordTest {
         engine.reveal(3, 3);
         
         // 标记 (2,2), (3,4), (4,3), (4,4) 为雷
-        engine.toggleFlag(2, 2);
-        engine.toggleFlag(3, 4);
-        engine.toggleFlag(4, 3);
-        engine.toggleFlag(4, 4);
+        engine.cycleMark(2, 2);
+        engine.cycleMark(3, 4);
+        engine.cycleMark(4, 3);
+        engine.cycleMark(4, 4);
         
         // 记录初始揭示计数
         int initialRevealedCount = board.getRevealedCount();
@@ -98,7 +56,7 @@ class ChordTest {
         engine.reveal(2, 4);
         
         // 标记 (3,4) 为雷（1 个 ●）
-        engine.toggleFlag(3, 4);
+        engine.cycleMark(3, 4);
         
         // 执行 chord(2,4)
         boolean chordResult = engine.chord(2, 4);
@@ -124,10 +82,10 @@ class ChordTest {
         engine.reveal(3, 3);
         
         // 错误标记 (2,2), (3,4), (4,3),(2,4)，漏标 (4,4)（真雷）
-        engine.toggleFlag(2, 2);
-        engine.toggleFlag(3, 4);
-        engine.toggleFlag(4, 3);
-        engine.toggleFlag(2, 4);
+        engine.cycleMark(2, 2);
+        engine.cycleMark(3, 4);
+        engine.cycleMark(4, 3);
+        engine.cycleMark(2, 4);
         
         // 执行 chord(3,3)
         boolean chordResult = engine.chord(3, 3);
@@ -148,9 +106,9 @@ class ChordTest {
         engine.reveal(3, 3);
         
         // 仅标记 3 个雷 (2,2), (3,4), (4,3)，标记数不足
-        engine.toggleFlag(2, 2);
-        engine.toggleFlag(3, 4);
-        engine.toggleFlag(4, 3);
+        engine.cycleMark(2, 2);
+        engine.cycleMark(3, 4);
+        engine.cycleMark(4, 3);
         
         // 记录初始揭示计数
         int initialRevealedCount = board.getRevealedCount();
@@ -171,17 +129,17 @@ class ChordTest {
     @Test
     void testScenarioE_ZeroChord() {
         // 完成开图后标记 0,7 1,7 1,8
-        engine.toggleFlag(0, 7);
-        engine.toggleFlag(1, 7);
-        engine.toggleFlag(1, 8);
+        engine.cycleMark(0, 7);
+        engine.cycleMark(1, 7);
+        engine.cycleMark(1, 8);
         
         // 揭示 0,8
         engine.reveal(0, 8);
         
         // 取消 0,7 1,7 1,8 的标记
-        engine.toggleFlag(0, 7);
-        engine.toggleFlag(1, 7);
-        engine.toggleFlag(1, 8);
+        engine.cycleMark(0, 7);
+        engine.cycleMark(1, 7);
+        engine.cycleMark(1, 8);
         
         // 记录初始揭示计数
         int initialRevealedCount = board.getRevealedCount();
@@ -202,16 +160,16 @@ class ChordTest {
     @Test
     void testScenarioF_ZeroChordSilentFailure() {
         // 完成开图后标记 0,7 1,7 1,8
-        engine.toggleFlag(0, 7);
-        engine.toggleFlag(1, 7);
-        engine.toggleFlag(1, 8);
+        engine.cycleMark(0, 7);
+        engine.cycleMark(1, 7);
+        engine.cycleMark(1, 8);
         
         // 揭示 0,8
         engine.reveal(0, 8);
         
         // 取消 0,7 1,7 的标记
-        engine.toggleFlag(0, 7);
-        engine.toggleFlag(1, 7);
+        engine.cycleMark(0, 7);
+        engine.cycleMark(1, 7);
         // 保留 1,8 的标记
         
         // 记录初始揭示计数
